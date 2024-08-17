@@ -1,0 +1,9 @@
+/* src/Error.css */
+.error {
+  padding: 20px;
+  border: 1px solid red;
+  background-color: #fdd;
+  color: red;
+  border-radius: 5px;
+  text-align: center;
+}
