@@ -14,7 +14,6 @@ function MyComponent() {
 export const MapComponent = (props) => {
   const { points, polygons, multipolygons } = props;
   const [selectedFeature, setSelectedFeature] = useState(null);
-
   const handleFeatureClick = (feature) => {
     console.log(feature);
     setSelectedFeature(feature);
@@ -22,12 +21,7 @@ export const MapComponent = (props) => {
 
   return (
     <>
-      <MapContainer
-        center={[37.7749, -122.4194]}
-        zoom={10}
-        // style={{ height: "100vh", width: "100%" }}
-        className="map-container"
-      >
+      <MapContainer center={[51.5, -0.1]} zoom={5} className="map-container">
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -35,8 +29,11 @@ export const MapComponent = (props) => {
         {points?.length > 0 &&
           points.map((point) => (
             <Marker
-              key={point.id}
-              position={[point.lat, point.lng]}
+              key={point._id} // Use _id as MongoDB typically uses this field
+              position={[
+                point.location.coordinates[1],
+                point.location.coordinates[0],
+              ]} // Assuming coordinates are stored as [longitude, latitude]
               eventHandlers={{
                 click: () => handleFeatureClick(point),
               }}
@@ -44,23 +41,35 @@ export const MapComponent = (props) => {
               <Popup>{point.name}</Popup>
             </Marker>
           ))}
+
         {polygons?.length > 0 &&
-          polygons.map((polygon) => (
-            <Polygon
-              key={polygon.id}
-              positions={polygon.coordinates}
-              eventHandlers={{
-                click: () => handleFeatureClick(polygon),
-              }}
-            >
-              <Popup>{polygon.name}</Popup>
-            </Polygon>
-          ))}
+          polygons.map((polygon) => {
+            console.log(polygon.area.coordinates[0]);
+            return (
+              <Polygon
+                key={polygon._id} // Use _id as MongoDB typically uses this field
+                positions={polygon.area.coordinates[0]} // Access the coordinates from the 'area' field
+                eventHandlers={{
+                  click: () => handleFeatureClick(polygon),
+                }}
+                pathOptions={{
+                  color: "red",
+                  weight: 5,
+                  opacity: 0.7,
+                  fillColor: "lightblue",
+                  fillOpacity: 0.5,
+                }}
+              >
+                <Popup>{polygon.name}</Popup>
+              </Polygon>
+            );
+          })}
+
         {multipolygons?.length > 0 &&
           multipolygons.map((multipolygon) => (
             <Polygon
-              key={multipolygon.id}
-              positions={multipolygon.coordinates}
+              key={multipolygon._id} // Use _id as MongoDB typically uses this field
+              positions={multipolygon.area.coordinates[0]} // Access the coordinates from the 'area' field
               eventHandlers={{
                 click: () => handleFeatureClick(multipolygon),
               }}

@@ -19,8 +19,7 @@ export async function getAllPoints() {
 
 export async function getAllPolygons() {
   try {
-    const response = await geoApiInstance.get("/geo-fences");
-    return response.data;
+    return await geoApiInstance.get("/geo-fences");
   } catch (error) {
     console.error(error);
     return [];
